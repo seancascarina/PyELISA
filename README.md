@@ -1,1 +1,1 @@
-# ELISApy
+# PyELISA
