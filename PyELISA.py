@@ -1,5 +1,7 @@
 
 from scipy.optimize import curve_fit
+import pandas as pd
+import numpy as np
 
 def main(args):
 
@@ -7,6 +9,20 @@ def main(args):
     file_type = args.file_type.lower()
     
     validate_input(data_file, file_type)
+    df = get_data(data_file, file_type)
+    
+
+def get_data(data_file, file_type):
+
+    if file_type == 'csv':
+        df = pd.read_csv(data_file)
+    else:
+        df = pd.read_csv(data_file, sep='\t')
+
+    df['Dilution'] = pd.eval(df['Dilution']).astype(float)
+    df['Dilution'] = np.log2( df['Dilution'] )
+
+    return df
     
     
 def validate_input(data_file, file_type):
@@ -32,7 +48,7 @@ def get_args(arguments):
     parser = argparse.ArgumentParser(description='Calculate endpoint titer (ET) from ELISA data', prog='PyELISA')
     
     parser.add_argument('data_file', help="""Your data file.""")
-    parser.add_argument('file_type', default='tsv', help="""Your file type (csv or tsv). Default=tsv""")
+    parser.add_argument('-t', '--file_type', type=str, default='tsv', help="""Your file type (csv or tsv). Default=tsv""")
 
     args = parser.parse_args(arguments)
     
