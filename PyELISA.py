@@ -20,6 +20,11 @@ def main(args):
 
     make_lineplots(df_long)
     
+    
+def sigmoidal_fit(x, a, b, c, d):
+    fx = (a-d) / (1+(x/c)**b) + d
+    return fx
+    
 
 def make_lineplots(df):
     
