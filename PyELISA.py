@@ -2,6 +2,8 @@
 from scipy.optimize import curve_fit
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 def main(args):
 
@@ -11,6 +13,29 @@ def main(args):
     validate_input(data_file, file_type)
     df = get_data(data_file, file_type)
     
+    category_cols = list(df.columns[:2])
+    data_cols = list(df.columns[2:])
+
+    df_long = df.melt(id_vars=category_cols, value_vars=data_cols, var_name='Individual', value_name='Absorbance')
+
+    make_lineplots(df_long)
+    
+
+def make_lineplots(df):
+    
+    sns.set_style('darkgrid')
+    grid = sns.FacetGrid(df, col='Individual', row='Groups', hue='Groups')
+
+    grid.map(sns.scatterplot, 'Dilution', 'Absorbance')
+    grid.map(sns.lineplot, 'Dilution', 'Absorbance')
+    grid.set_titles(col_template="{col_name}", row_template="{row_name}")
+    grid.fig.subplots_adjust(hspace=0.2) # Adjust spacing
+
+    fig = plt.gcf()
+    fig.set_size_inches(12, 8)
+    plt.savefig('Absorbance_vs_Dilution.jpg', bbox_inches='tight', dpi=600)
+    plt.close()
+
 
 def get_data(data_file, file_type):
 
