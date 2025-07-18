@@ -40,7 +40,11 @@ def fit_data(df):
             'Absorbance':[]}
     et_df = {'Endpoint titer':[],
             'Groups':[]}
-    categories = list(set(df['Groups']))
+
+    categories = []
+    for cat in df['Groups']:
+        if cat not in categories:
+            categories.append(cat)
     individuals = list(set(df['Individual']))
     for cat in categories:
         for individual in individuals:
