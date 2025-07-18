@@ -25,11 +25,11 @@ def main(args):
 
     print('Fitting curves...')
     fit_df, et_df = fit_data(df_long)
-    # print(et_df)
-    
+
     print('Making plots...')
     make_lineplots(df_long, 'Absorbance_vs_Dilution.jpg')
     make_lineplots_fitdata_v2(df_long, 'SigmoidFit_Absorbance_vs_Dilution.jpg', pd.DataFrame(fit_df))
+    make_boxplot_endpoint_titers(et_df)
     
     
 def fit_data(df):
@@ -74,6 +74,14 @@ def sigmoidal_fit(x, a, b, c, d):
 def calc_endpoint_titer(a, b, c, d):
     endpoint_titer = c * (( (a-d) / (0.2-d) ) - 1)**(1/b)
     return endpoint_titer
+    
+    
+def make_boxplot_endpoint_titers(df):
+    
+    sns.boxplot(x='Groups', y='Endpoint titer', data=df, hue='Groups', showfliers=False, palette=['0.7'])
+    sns.stripplot(x='Groups', y='Endpoint titer', data=df, hue='Groups')
+    plt.savefig('Endpoint_titer_Boxplots.tif', bbox_inches='tight', dpi=600)
+    plt.close()
     
     
 def make_lineplots(df, plot_name):
