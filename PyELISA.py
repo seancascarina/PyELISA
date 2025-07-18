@@ -24,7 +24,8 @@ def main(args):
     df_long = df.melt(id_vars=category_cols, value_vars=data_cols, var_name='Individual', value_name='Absorbance')
 
     print('Fitting curves...')
-    fit_df = fit_data(df_long)
+    fit_df, et_df = fit_data(df_long)
+    # print(et_df)
     
     print('Making plots...')
     make_lineplots(df_long, 'Absorbance_vs_Dilution.jpg')
@@ -37,13 +38,15 @@ def fit_data(df):
             'Dilution':[],
             'Individual':[],
             'Absorbance':[]}
+    et_df = {'Endpoint titer':[],
+            'Groups':[]}
     categories = list(set(df['Groups']))
     individuals = list(set(df['Individual']))
     for cat in categories:
         for individual in individuals:
             single_df = df[ (df['Groups'] == cat) & (df['Individual'] == individual) ]
             popt, pcov = curve_fit(sigmoidal_fit, single_df['Dilution'], single_df['Absorbance'], maxfev=10000)
-
+            
             num_points = 1000
             xvals = list(single_df['Dilution'])
             xrange = list(np.linspace(xvals[0], xvals[-1], num=num_points))
@@ -54,12 +57,23 @@ def fit_data(df):
             fit_df['Dilution'] += xrange
             fit_df['Absorbance'] += yfit_vals
             
-    return fit_df
+            a, b, c, d = popt
+            endpoint_titer = calc_endpoint_titer(a, b, c, d)
+
+            et_df['Endpoint titer'].append(1/endpoint_titer)
+            et_df['Groups'].append(cat)
+            
+    return fit_df, et_df
     
 
 def sigmoidal_fit(x, a, b, c, d):
     fx = (a-d) / (1+((x/c)**b)) + d
     return fx
+    
+    
+def calc_endpoint_titer(a, b, c, d):
+    endpoint_titer = c * (( (a-d) / (0.2-d) ) - 1)**(1/b)
+    return endpoint_titer
     
     
 def make_lineplots(df, plot_name):
