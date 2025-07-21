@@ -1,6 +1,7 @@
 # PyELISA: Automation of ELISA data analysis
 ## Background
 - A [recent study](https://www.frontiersin.org/journals/immunology/articles/10.3389/fimmu.2024.1427526/full) described a method for automating curve fitting and calculation of endpoint titers for ELISA datasets.
+- This method was applied to determining whether exposure to non-tuberculosis mycobacteria improves vaccine efficacy in mice challenged with infectious tuberculosis.
 - The R program described in this study is currently unavailable (the authors plan to release an R program in the future).
 - Therefore, I wrote a Python script &mdash; PyELISA &mdash; based on their described methods to perform the same type of automated analysis.
 
