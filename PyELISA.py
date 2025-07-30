@@ -49,12 +49,12 @@ def fit_data(df):
     for cat in categories:
         for individual in individuals:
             single_df = df[ (df['Groups'] == cat) & (df['Individual'] == individual) ]
-            popt, pcov = curve_fit(sigmoidal_fit, single_df['Dilution'], single_df['Absorbance'], maxfev=10000)
+            popt, pcov = curve_fit(fit_4PL_regression, single_df['Dilution'], single_df['Absorbance'], maxfev=10000)
             
             num_points = 1000
             xvals = list(single_df['Dilution'])
             xrange = list(np.linspace(xvals[0], xvals[-1], num=num_points))
-            yfit_vals = [sigmoidal_fit(x, *popt) for x in xrange]
+            yfit_vals = [fit_4PL_regression(x, *popt) for x in xrange]
 
             fit_df['Groups'] += [cat]*num_points
             fit_df['Individual'] += [individual]*num_points
@@ -62,7 +62,7 @@ def fit_data(df):
             fit_df['Absorbance'] += yfit_vals
             
             a, b, c, d = popt
-            endpoint_titer = calc_endpoint_titer(a, b, c, d)
+            endpoint_titer = calc_endpoint_titer_4PL(a, b, c, d)
 
             et_df['Endpoint titer'].append(1/endpoint_titer)
             et_df['Groups'].append(cat)
@@ -70,12 +70,12 @@ def fit_data(df):
     return fit_df, et_df
     
 
-def sigmoidal_fit(x, a, b, c, d):
+def fit_4PL_regression(x, a, b, c, d):
     fx = (a-d) / (1+((x/c)**b)) + d
     return fx
     
     
-def calc_endpoint_titer(a, b, c, d):
+def calc_endpoint_titer_4PL(a, b, c, d):
     endpoint_titer = c * (( (a-d) / (0.2-d) ) - 1)**(1/b)
     return endpoint_titer
     
