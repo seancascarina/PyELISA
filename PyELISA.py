@@ -14,7 +14,7 @@ def main(args):
     file_type = args.file_type.lower()
     regression_type = args.regeression_type().upper()
     
-    validate_input(data_file, file_type)
+    validate_input(data_file, file_type, regression_type)
     
     print('Gathering data...')
     df = get_data(data_file, file_type)
@@ -185,7 +185,7 @@ def get_data(data_file, file_type):
     return df
     
     
-def validate_input(data_file, file_type):
+def validate_input(data_file, file_type, regression_type):
     
     error_message = ''
     # VALIDATE FILE
@@ -196,7 +196,10 @@ def validate_input(data_file, file_type):
         error_message += '\nERROR: The file could not be found. Please ensure the file is in the same directory as PyELISA or specify an absolute file path.\n'
         
     if file_type not in ['csv', 'tsv']:
-        error_message += '\nERROR: Unrecognized file type. Valid file types of "tsv" or "csv"'
+        error_message += '\nERROR: Unrecognized file type. Valid file types are "tsv" or "csv" only.'
+        
+    if regression_type not in ['4PL', '5PL']:
+        error_message += '\nERROR: Unrecognized value for regression_type parameter. Valid regression types are "4PL" or "5PL" only.'
         
     if error_message:
         print(error_message)
