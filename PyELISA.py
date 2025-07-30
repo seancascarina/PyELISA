@@ -12,7 +12,7 @@ def main(args):
 
     data_file = args.data_file
     file_type = args.file_type.lower()
-    regression_type = args.regeression_type().upper()
+    regression_type = args.regression_type.upper()
     
     validate_input(data_file, file_type, regression_type)
     
