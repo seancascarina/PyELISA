@@ -75,6 +75,11 @@ def fit_5PL(x, a, b, c, d, g):
     fx = (a-d) / (1+((x/c)**b))**g + d
     return fx
     
+    
+def calc_endpoint_titer_5PL(a, b, c, d, g):
+    endpoint_titer = c * (( (a-d) / (0.2-d) )**(1/g) - 1)**(1/b)
+    return endpoint_titer
+    
 
 def fit_4PL(x, a, b, c, d):
     fx = (a-d) / (1+((x/c)**b)) + d
