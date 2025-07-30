@@ -28,9 +28,9 @@ def main(args):
     fit_df, et_df = fit_data(df_long, regression_type)
 
     print('Making plots...')
-    make_lineplots(df_long, 'Absorbance_vs_Dilution.jpg')
-    make_lineplots_fitdata_v2(df_long, 'SigmoidFit_Absorbance_vs_Dilution.jpg', pd.DataFrame(fit_df))
-    make_boxplot_endpoint_titers(et_df)
+    make_lineplots(df_long, f'Absorbance_vs_Dilution_{regression_type}.jpg')
+    make_lineplots_fitdata_v2(df_long, f'SigmoidFit_Absorbance_vs_Dilution_{regression_type}.jpg', pd.DataFrame(fit_df))
+    make_boxplot_endpoint_titers(et_df, regression_type)
     
     
 def fit_data(df, regression_type):
@@ -98,11 +98,11 @@ def calc_endpoint_titer_4PL(a, b, c, d):
     return endpoint_titer
     
     
-def make_boxplot_endpoint_titers(df):
+def make_boxplot_endpoint_titers(df, regression_type):
     
     sns.boxplot(x='Groups', y='Endpoint titer', data=df, hue='Groups', showfliers=False, palette=['0.7'])
     sns.stripplot(x='Groups', y='Endpoint titer', data=df, hue='Groups')
-    plt.savefig('Endpoint_titer_Boxplots.tif', bbox_inches='tight', dpi=600)
+    plt.savefig(f'Endpoint_titer_Boxplots_{regression_type}.tif', bbox_inches='tight', dpi=600)
     plt.close()
     
     
