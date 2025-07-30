@@ -71,6 +71,11 @@ def fit_data(df):
     return fit_df, et_df
     
 
+def fit_5PL(x, a, b, c, d, g):
+    fx = (a-d) / (1+((x/c)**b))**g + d
+    return fx
+    
+
 def fit_4PL(x, a, b, c, d):
     fx = (a-d) / (1+((x/c)**b)) + d
     return fx
