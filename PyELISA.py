@@ -25,7 +25,7 @@ def main(args):
     df_long = df.melt(id_vars=category_cols, value_vars=data_cols, var_name='Individual', value_name='Absorbance')
 
     print('Fitting curves...')
-    fit_df, et_df = fit_data(df_long)
+    fit_df, et_df = fit_data(df_long, regression_type)
 
     print('Making plots...')
     make_lineplots(df_long, 'Absorbance_vs_Dilution.jpg')
@@ -33,7 +33,7 @@ def main(args):
     make_boxplot_endpoint_titers(et_df)
     
     
-def fit_data(df):
+def fit_data(df, regression_type):
     
     fit_df = {'Groups':[],
             'Dilution':[],
@@ -46,24 +46,31 @@ def fit_data(df):
     for cat in df['Groups']:
         if cat not in categories:
             categories.append(cat)
+            
     individuals = list(set(df['Individual']))
     for cat in categories:
         for individual in individuals:
             single_df = df[ (df['Groups'] == cat) & (df['Individual'] == individual) ]
-            popt, pcov = curve_fit(fit_4PL, single_df['Dilution'], single_df['Absorbance'], maxfev=10000)
-            
+
             num_points = 1000
             xvals = list(single_df['Dilution'])
             xrange = list(np.linspace(xvals[0], xvals[-1], num=num_points))
-            yfit_vals = [fit_4PL(x, *popt) for x in xrange]
+            
+            if regression_type == '4PL':
+                popt, pcov = curve_fit(fit_4PL, single_df['Dilution'], single_df['Absorbance'], maxfev=10000)
+                yfit_vals = [fit_4PL(x, *popt) for x in xrange]
+                a, b, c, d = popt
+                endpoint_titer = calc_endpoint_titer_4PL(a, b, c, d)
+            else:
+                popt, pcov = curve_fit(fit_5PL, single_df['Dilution'], single_df['Absorbance'], maxfev=10000)
+                yfit_vals = [fit_5PL(x, *popt) for x in xrange]
+                a, b, c, d, g = popt
+                endpoint_titer = calc_endpoint_titer_5PL(a, b, c, d, g)
 
             fit_df['Groups'] += [cat]*num_points
             fit_df['Individual'] += [individual]*num_points
             fit_df['Dilution'] += xrange
             fit_df['Absorbance'] += yfit_vals
-            
-            a, b, c, d = popt
-            endpoint_titer = calc_endpoint_titer_4PL(a, b, c, d)
 
             et_df['Endpoint titer'].append(1/endpoint_titer)
             et_df['Groups'].append(cat)
