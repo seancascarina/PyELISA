@@ -12,6 +12,7 @@ def main(args):
 
     data_file = args.data_file
     file_type = args.file_type.lower()
+    regression_type = args.regeression_type().upper()
     
     validate_input(data_file, file_type)
     
@@ -49,12 +50,12 @@ def fit_data(df):
     for cat in categories:
         for individual in individuals:
             single_df = df[ (df['Groups'] == cat) & (df['Individual'] == individual) ]
-            popt, pcov = curve_fit(fit_4PL_regression, single_df['Dilution'], single_df['Absorbance'], maxfev=10000)
+            popt, pcov = curve_fit(fit_4PL, single_df['Dilution'], single_df['Absorbance'], maxfev=10000)
             
             num_points = 1000
             xvals = list(single_df['Dilution'])
             xrange = list(np.linspace(xvals[0], xvals[-1], num=num_points))
-            yfit_vals = [fit_4PL_regression(x, *popt) for x in xrange]
+            yfit_vals = [fit_4PL(x, *popt) for x in xrange]
 
             fit_df['Groups'] += [cat]*num_points
             fit_df['Individual'] += [individual]*num_points
@@ -70,7 +71,7 @@ def fit_data(df):
     return fit_df, et_df
     
 
-def fit_4PL_regression(x, a, b, c, d):
+def fit_4PL(x, a, b, c, d):
     fx = (a-d) / (1+((x/c)**b)) + d
     return fx
     
@@ -198,6 +199,7 @@ def get_args(arguments):
     
     parser.add_argument('data_file', help="""Your data file.""")
     parser.add_argument('-t', '--file_type', type=str, default='tsv', help="""Your file type (csv or tsv). Default=tsv""")
+    parser.add_argument('-r', '--regression_type', type=str, default='4PL', help="""Your file type (csv or tsv). Default=tsv""")
 
     args = parser.parse_args(arguments)
     
