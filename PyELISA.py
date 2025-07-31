@@ -222,8 +222,8 @@ def get_args(arguments):
     parser = argparse.ArgumentParser(description='Calculate endpoint titer (ET) from ELISA data', prog='PyELISA')
     
     parser.add_argument('data_file', help="""Your data file.""")
-    parser.add_argument('-f', '--file_type', type=str, default='csv', help="""Your file type (csv or tsv). Default=tsv""")
-    parser.add_argument('-r', '--regression_type', type=str, default='4PL', help="""Your file type (csv or tsv). Default=tsv""")
+    parser.add_argument('-f', '--file_type', type=str, default='csv', help="""The file type of the data_file provided. Options are "csv" or "tsv" Default=csv""")
+    parser.add_argument('-r', '--regression_type', type=str, default='4PL', help="""The regression type used for curve fitting. Options are "4PL" or "5PL" (4-parameter logistic or 5-parameter logistic, respectively). Default=4PL""")
     parser.add_argument('-t', '--threshold', type=float, default=0.2, help="""The threshold to use for endpoint titer calculation. Default=0.2""")
 
     args = parser.parse_args(arguments)
