@@ -101,7 +101,7 @@ def calc_endpoint_titer_4PL(a, b, c, d, threshold):
     
 def make_boxplot_endpoint_titers(df, regression_type):
     
-    sns.boxplot(x='Groups', y='Endpoint titer', data=df, hue='Groups', showfliers=False, palette=['0.7'])
+    sns.boxplot(x='Groups', y='Endpoint titer', data=df, hue='Groups', showfliers=False, palette=['0.7']*len(set(df['Groups'])))
     sns.stripplot(x='Groups', y='Endpoint titer', data=df, hue='Groups')
     plt.savefig(f'Endpoint_titer_Boxplots_{regression_type}.tif', bbox_inches='tight', dpi=600)
     plt.close()
