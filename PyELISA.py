@@ -66,6 +66,8 @@ def fit_data(df, regression_type, threshold):
                 popt, pcov = curve_fit(fit_5PL, single_df['Dilution'], single_df['Absorbance'], maxfev=10000)
                 yfit_vals = [fit_5PL(x, *popt) for x in xrange]
                 a, b, c, d, g = popt
+                print('\n', cat, individual)
+                print('Fit parameters: ', a, b, c, d, g)
                 endpoint_titer = calc_endpoint_titer_5PL(a, b, c, d, g, threshold)
 
             fit_df['Groups'] += [cat]*num_points
@@ -85,7 +87,10 @@ def fit_5PL(x, a, b, c, d, g):
     
     
 def calc_endpoint_titer_5PL(a, b, c, d, g, threshold):
+    print( (a-d) / (threshold-d) )
+    print( ( (a-d) / (threshold-d) )**(1/g) - 1)
     endpoint_titer = c * (( (a-d) / (threshold-d) )**(1/g) - 1)**(1/b)
+    print(endpoint_titer)
     return endpoint_titer
     
 
