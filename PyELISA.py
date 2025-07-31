@@ -171,6 +171,8 @@ def make_lineplots_fitdata_v2(df, plot_name, lines_df=None):
 
             single_df = lines_df_copy[ (lines_df_copy['Groups'] == row_category) & (lines_df_copy['Individual'] == col_category)]
             sns.lineplot(x='Dilution', y='Absorbance', data=single_df, color='grey', ax=ax)
+            # plt.plot((min(single_df['Dilution']), max(single_df['Dilution'])), (0.2, 0.2), linestyle='--', color='0.5', ax=ax)
+            sns.lineplot(x=(min(single_df['Dilution']), max(single_df['Dilution'])), y=(0.2, 0.2), linestyle='--', color='0.5', ax=ax)
             ax.get_legend().remove()
 
     legend_elements = [Line2D([0], [0], marker='o', linestyle='None', markeredgecolor='None', label=cat, markerfacecolor=colors[i], markersize=10) for i, cat in enumerate(row_cats)]
