@@ -118,7 +118,11 @@ def prep_containers(df):
         if cat not in categories:
             categories.append(cat)
             
-    individuals = list(set(df['Individual']))
+    # individuals = list(set(df['Individual']))
+    individuals = []
+    for ind in df['Individual']:
+        if ind not in individuals:
+            individuals.append(ind)
     
     return fit_df, et_df, categories, individuals
     
