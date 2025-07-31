@@ -26,7 +26,7 @@ def main(args):
     df_long = df.melt(id_vars=category_cols, value_vars=data_cols, var_name='Individual', value_name='Absorbance')
 
     print('Fitting curves...')
-    fit_df, et_df = fit_data(df_long, regression_type)
+    fit_df, et_df = fit_data(df_long, regression_type, threshold)
 
     print('Making plots...')
     make_lineplots(df_long, f'Absorbance_vs_Dilution_{regression_type}.jpg')
@@ -34,7 +34,7 @@ def main(args):
     make_boxplot_endpoint_titers(et_df, regression_type)
     
     
-def fit_data(df, regression_type):
+def fit_data(df, regression_type, threshold):
     
     fit_df = {'Groups':[],
             'Dilution':[],
@@ -61,12 +61,12 @@ def fit_data(df, regression_type):
                 popt, pcov = curve_fit(fit_4PL, single_df['Dilution'], single_df['Absorbance'], maxfev=10000)
                 yfit_vals = [fit_4PL(x, *popt) for x in xrange]
                 a, b, c, d = popt
-                endpoint_titer = calc_endpoint_titer_4PL(a, b, c, d)
+                endpoint_titer = calc_endpoint_titer_4PL(a, b, c, d, threshold)
             else:
                 popt, pcov = curve_fit(fit_5PL, single_df['Dilution'], single_df['Absorbance'], maxfev=10000)
                 yfit_vals = [fit_5PL(x, *popt) for x in xrange]
                 a, b, c, d, g = popt
-                endpoint_titer = calc_endpoint_titer_5PL(a, b, c, d, g)
+                endpoint_titer = calc_endpoint_titer_5PL(a, b, c, d, g, threshold)
 
             fit_df['Groups'] += [cat]*num_points
             fit_df['Individual'] += [individual]*num_points
@@ -84,8 +84,8 @@ def fit_5PL(x, a, b, c, d, g):
     return fx
     
     
-def calc_endpoint_titer_5PL(a, b, c, d, g):
-    endpoint_titer = c * (( (a-d) / (0.2-d) )**(1/g) - 1)**(1/b)
+def calc_endpoint_titer_5PL(a, b, c, d, g, threshold):
+    endpoint_titer = c * (( (a-d) / (threshold-d) )**(1/g) - 1)**(1/b)
     return endpoint_titer
     
 
@@ -94,8 +94,8 @@ def fit_4PL(x, a, b, c, d):
     return fx
     
     
-def calc_endpoint_titer_4PL(a, b, c, d):
-    endpoint_titer = c * (( (a-d) / (0.2-d) ) - 1)**(1/b)
+def calc_endpoint_titer_4PL(a, b, c, d, threshold):
+    endpoint_titer = c * (( (a-d) / (threshold-d) ) - 1)**(1/b)
     return endpoint_titer
     
     
