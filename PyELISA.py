@@ -30,7 +30,7 @@ def main(args):
 
     print('Making plots...')
     make_lineplots(df_long, f'Absorbance_vs_Dilution_{regression_type}.jpg')
-    make_lineplots_fitdata(df_long, f'SigmoidFit_Absorbance_vs_Dilution_{regression_type}.jpg', pd.DataFrame(fit_df))
+    make_lineplots_fitdata(df_long, f'SigmoidFit_Absorbance_vs_Dilution_{regression_type}.jpg', threshold, pd.DataFrame(fit_df))
     make_boxplot_endpoint_titers(et_df, regression_type)
     
     
@@ -137,7 +137,7 @@ def make_lineplots(df, plot_name):
     plt.close()
     
     
-def make_lineplots_fitdata(df, plot_name, lines_df=None):
+def make_lineplots_fitdata(df, plot_name, threshold, lines_df=None):
     
     df_copy = df.copy()
     df_copy['Dilution'] = np.log2( df_copy['Dilution'] )
@@ -166,6 +166,7 @@ def make_lineplots_fitdata(df, plot_name, lines_df=None):
 
             single_df = lines_df_copy[ (lines_df_copy['Groups'] == row_category) & (lines_df_copy['Individual'] == col_category)]
             sns.lineplot(x='Dilution', y='Absorbance', data=single_df, color='grey', ax=ax)
+            sns.lineplot(x=(min(single_df['Dilution']), max(single_df['Dilution'])), y=(threshold, threshold), linestyle='--', color='0.5', ax=ax)
             ax.get_legend().remove()
 
     legend_elements = [Line2D([0], [0], marker='o', linestyle='None', markeredgecolor='None', label=cat, markerfacecolor=colors[i], markersize=10) for i, cat in enumerate(row_cats)]
