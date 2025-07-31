@@ -50,6 +50,7 @@ def fit_data(df, regression_type, threshold, fit_df, et_df, categories, individu
                 popt, pcov = curve_fit(fit_4PL, single_df['Dilution'], single_df['Absorbance'], maxfev=10000)
                 yfit_vals = [fit_4PL(x, *popt) for x in xrange]
                 a, b, c, d = popt
+                r_squared = calc_rsquared(single_df['Dilution'], single_df['Absorbance'], popt, regression_type)
                 if a > threshold:
                     print(f'\nWARNING: the sample "{individual}" from group "{cat}" has a curve-fit value at zero concentration that is higher than your threshold (threshold={threshold}), curve-fit absorbance at zero={a}. An endpoint titer could not be determined for this sample. Consider increasing the threshold or assaying more dilute samples to get lower absorbance readings.\n')
                     endpoint_titer = None
@@ -59,6 +60,7 @@ def fit_data(df, regression_type, threshold, fit_df, et_df, categories, individu
                 popt, pcov = curve_fit(fit_5PL, single_df['Dilution'], single_df['Absorbance'], maxfev=10000)
                 yfit_vals = [fit_5PL(x, *popt) for x in xrange]
                 a, b, c, d, g = popt
+                r_squared = calc_rsquared(single_df['Dilution'], single_df['Absorbance'], popt, regression_type)
                 if a > threshold:
                     print(f'\nWARNING: the sample "{individual}" from group "{cat}" has a curve-fit value at zero concentration that is higher than your threshold (threshold={threshold}), curve-fit absorbance at zero={a}. An endpoint titer could not be determined for this sample. Consider increasing the threshold or assaying more dilute samples to get lower absorbance readings.\n')
                     endpoint_titer = None
@@ -77,13 +79,31 @@ def fit_data(df, regression_type, threshold, fit_df, et_df, categories, individu
             else:
                 et_reciprocal = None
                 
-            output.write('\t'.join([cat, individual, str(endpoint_titer), str(et_reciprocal)] + [str(x) for x in popt]) + '\n')
+            output.write('\t'.join([cat, individual, str(endpoint_titer), str(et_reciprocal), str(r_squared)] + [str(x) for x in popt]) + '\n')
             
     output.close()
     
     return fit_df, et_df
     
+    
+def calc_rsquared(x_vals, y_vals, popt, regression_type):
+    
+    # ===COULD BE FASTER IF VECTORIZED BUT SPEED GAIN IS LIKELY NEGLIGIBLE===
 
+    # SUM OF SQUARED RESIDUALS
+    if regression_type == '4PL':
+        ss_res = sum([(fit_4PL(x_val, *popt) - y_vals.iloc[i])**2 for i, x_val in enumerate(x_vals)])
+    else:
+        ss_res = sum([(fit_5PL(x_val, *popt) - y_vals.iloc[i])**2 for i, x_val in enumerate(x_vals)])
+    
+    # TOTAL SUM OF SQUARES
+    ss_tot = sum([(val - np.mean(y_vals))**2 for val in y_vals])
+    
+    r_squared = 1 - (ss_res / ss_tot)
+    
+    return r_squared
+    
+    
 def fit_5PL(x, a, b, c, d, g):
     fx = (a-d) / (1+((x/c)**b))**g + d
     return fx
@@ -117,8 +137,7 @@ def prep_containers(df):
     for cat in df['Groups']:
         if cat not in categories:
             categories.append(cat)
-            
-    # individuals = list(set(df['Individual']))
+
     individuals = []
     for ind in df['Individual']:
         if ind not in individuals:
@@ -130,9 +149,9 @@ def prep_containers(df):
 def prep_output_file(regression_type):
     
     if regression_type == '4PL':
-        header = '\t'.join(['Group', 'Sample ID', 'Endpoint Titer', '1 / Endpoint_Titer'] + list('abcd'))
+        header = '\t'.join(['Group', 'Sample ID', 'Endpoint Titer', '1 / Endpoint_Titer', 'Goodness of Fit (R-squared)'] + list('abcd'))
     else:
-        header = '\t'.join(['Group', 'Sample ID', 'Endpoint Titer', '1 / Endpoint_Titer'] + list('abcdg'))
+        header = '\t'.join(['Group', 'Sample ID', 'Endpoint Titer', '1 / Endpoint_Titer', 'Goodness of Fit (R-squared)'] + list('abcdg'))
         
     output = open('Endpoint_Titer_Results.tsv', 'w')
     output.write(header + '\n')
