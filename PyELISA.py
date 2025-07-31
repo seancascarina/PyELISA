@@ -26,7 +26,8 @@ def main(args):
     df_long = df.melt(id_vars=category_cols, value_vars=data_cols, var_name='Individual', value_name='Absorbance')
 
     print('Fitting curves...')
-    fit_df, et_df = fit_data(df_long, regression_type, threshold)
+    fit_df, et_df, categories, individuals = prep_containers(df_long)
+    fit_df, et_df = fit_data(df_long, regression_type, threshold, fit_df, et_df, categories, individuals)
 
     print('Making plots...')
     make_lineplots(df_long, f'Absorbance_vs_Dilution_{regression_type}.jpg')
@@ -34,21 +35,8 @@ def main(args):
     make_boxplot_endpoint_titers(et_df, regression_type)
     
     
-def fit_data(df, regression_type, threshold):
+def fit_data(df, regression_type, threshold, fit_df, et_df, categories, individuals):
     
-    fit_df = {'Groups':[],
-            'Dilution':[],
-            'Individual':[],
-            'Absorbance':[]}
-    et_df = {'Endpoint titer':[],
-            'Groups':[]}
-
-    categories = []
-    for cat in df['Groups']:
-        if cat not in categories:
-            categories.append(cat)
-            
-    individuals = list(set(df['Individual']))
     for cat in categories:
         for individual in individuals:
             single_df = df[ (df['Groups'] == cat) & (df['Individual'] == individual) ]
@@ -106,6 +94,25 @@ def fit_4PL(x, a, b, c, d):
 def calc_endpoint_titer_4PL(a, b, c, d, threshold):
     endpoint_titer = c * (( (a-d) / (threshold-d) ) - 1)**(1/b)
     return endpoint_titer
+    
+    
+def prep_containers(df):
+    
+    fit_df = {'Groups':[],
+            'Dilution':[],
+            'Individual':[],
+            'Absorbance':[]}
+    et_df = {'Endpoint titer':[],
+            'Groups':[]}
+
+    categories = []
+    for cat in df['Groups']:
+        if cat not in categories:
+            categories.append(cat)
+            
+    individuals = list(set(df['Individual']))
+    
+    return fit_df, et_df, categories, individuals
     
     
 def make_boxplot_endpoint_titers(df, regression_type):
