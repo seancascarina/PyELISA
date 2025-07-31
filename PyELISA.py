@@ -209,8 +209,8 @@ def validate_input(data_file, file_type, regression_type, threshold):
     if regression_type not in ['4PL', '5PL']:
         error_message += '\nERROR: Unrecognized value for regression_type parameter. Valid regression types are "4PL" or "5PL" only.'
         
-    if not 0.0 <= threshold <= 1.0:
-        error_message += '\nERROR: Threshold value falls outside of accepted range. Threshold must be between 0.0-1.0.'
+    if not 0.0 <= threshold:
+        error_message += '\nERROR: Threshold value for calculating endpoint titer should be > 0.'
         
     if error_message:
         print(error_message)
@@ -224,7 +224,7 @@ def get_args(arguments):
     parser.add_argument('data_file', help="""Your data file.""")
     parser.add_argument('-f', '--file_type', type=str, default='csv', help="""Your file type (csv or tsv). Default=tsv""")
     parser.add_argument('-r', '--regression_type', type=str, default='4PL', help="""Your file type (csv or tsv). Default=tsv""")
-    parser.add_argument('-t', '--threshold', type=float, default=0.2, help="""The threshold (0.0-1.0) to use for endpoint titer calculation. Default=0.2""")
+    parser.add_argument('-t', '--threshold', type=float, default=0.2, help="""The threshold to use for endpoint titer calculation. Default=0.2""")
 
     args = parser.parse_args(arguments)
     
