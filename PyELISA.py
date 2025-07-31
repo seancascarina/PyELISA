@@ -30,7 +30,7 @@ def main(args):
 
     print('Making plots...')
     make_lineplots(df_long, f'Absorbance_vs_Dilution_{regression_type}.jpg')
-    make_lineplots_fitdata_v2(df_long, f'SigmoidFit_Absorbance_vs_Dilution_{regression_type}.jpg', pd.DataFrame(fit_df))
+    make_lineplots_fitdata(df_long, f'SigmoidFit_Absorbance_vs_Dilution_{regression_type}.jpg', pd.DataFrame(fit_df))
     make_boxplot_endpoint_titers(et_df, regression_type)
     
     
@@ -137,7 +137,7 @@ def make_lineplots(df, plot_name):
     plt.close()
     
     
-def make_lineplots_fitdata_v2(df, plot_name, lines_df=None):
+def make_lineplots_fitdata(df, plot_name, lines_df=None):
     
     df_copy = df.copy()
     df_copy['Dilution'] = np.log2( df_copy['Dilution'] )
