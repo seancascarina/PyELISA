@@ -36,7 +36,8 @@ def main(args):
     
     
 def fit_data(df, regression_type, threshold, fit_df, et_df, categories, individuals):
-    
+
+    output = prep_output_file(regression_type)
     for cat in categories:
         for individual in individuals:
             single_df = df[ (df['Groups'] == cat) & (df['Individual'] == individual) ]
@@ -113,6 +114,19 @@ def prep_containers(df):
     individuals = list(set(df['Individual']))
     
     return fit_df, et_df, categories, individuals
+    
+    
+def prep_output_file(regression_type):
+    
+    if regression_type == '4PL':
+        header = '\t'.join(['Group', 'ID'] + list('abcd'))
+    else:
+        header = '\t'.join(['Group', 'ID'] + list('abcdg'))
+        
+    output = open('Endpoint_Titer_Results.tsv', 'w')
+    output.write(header + '\n')
+    
+    return output
     
     
 def make_boxplot_endpoint_titers(df, regression_type):
