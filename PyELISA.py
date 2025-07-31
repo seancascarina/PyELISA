@@ -61,11 +61,15 @@ def fit_data(df, regression_type, threshold):
                 popt, pcov = curve_fit(fit_4PL, single_df['Dilution'], single_df['Absorbance'], maxfev=10000)
                 yfit_vals = [fit_4PL(x, *popt) for x in xrange]
                 a, b, c, d = popt
+                if a > threshold:
+                    print(f'\nWARNING: the sample "{individual}" from group "{cat}" has a curve-fit value at zero concentration that is higher than your threshold (threshold={threshold}), curve-fit absorbance at zero={a}. An endpoint titer could not be determined for this sample. Consider increasing the threshold or assaying more dilute samples to get lower absorbance readings.\n')
                 endpoint_titer = calc_endpoint_titer_4PL(a, b, c, d, threshold)
             else:
                 popt, pcov = curve_fit(fit_5PL, single_df['Dilution'], single_df['Absorbance'], maxfev=10000)
                 yfit_vals = [fit_5PL(x, *popt) for x in xrange]
                 a, b, c, d, g = popt
+                if a > threshold:
+                    print(f'\nWARNING: the sample "{individual}" from group "{cat}" has a curve-fit value at zero concentration that is higher than your threshold (threshold={threshold}), curve-fit absorbance at zero={a}. An endpoint titer could not be determined for this sample. Consider increasing the threshold or assaying more dilute samples to get lower absorbance readings.\n')
                 endpoint_titer = calc_endpoint_titer_5PL(a, b, c, d, g, threshold)
 
             fit_df['Groups'] += [cat]*num_points
