@@ -71,9 +71,16 @@ def fit_data(df, regression_type, threshold, fit_df, et_df, categories, individu
             fit_df['Absorbance'] += yfit_vals
             
             if endpoint_titer:
-                et_df['Endpoint titer'].append(1/endpoint_titer)
+                et_reciprocal = 1 / endpoint_titer
+                et_df['Endpoint titer'].append(1/et_reciprocal)
                 et_df['Groups'].append(cat)
+            else:
+                et_reciprocal = None
+                
+            output.write('\t'.join([cat, individual, str(endpoint_titer), str(et_reciprocal)] + [str(x) for x in popt]) + '\n')
             
+    output.close()
+    
     return fit_df, et_df
     
 
@@ -119,9 +126,9 @@ def prep_containers(df):
 def prep_output_file(regression_type):
     
     if regression_type == '4PL':
-        header = '\t'.join(['Group', 'ID'] + list('abcd'))
+        header = '\t'.join(['Group', 'Sample ID', 'Endpoint Titer', '1 / Endpoint_Titer'] + list('abcd'))
     else:
-        header = '\t'.join(['Group', 'ID'] + list('abcdg'))
+        header = '\t'.join(['Group', 'Sample ID', 'Endpoint Titer', '1 / Endpoint_Titer'] + list('abcdg'))
         
     output = open('Endpoint_Titer_Results.tsv', 'w')
     output.write(header + '\n')
