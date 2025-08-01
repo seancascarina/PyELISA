@@ -14,6 +14,7 @@ def main(args):
     file_type = args.file_type.lower()
     regression_type = args.regression_type.upper()
     threshold = args.threshold
+    maxfev = args.maxfev
     
     validate_input(data_file, file_type, regression_type, threshold)
     
@@ -27,7 +28,7 @@ def main(args):
 
     print('Fitting curves...')
     fit_df, et_df, categories, individuals = prep_containers(df_long)
-    fit_df, et_df = fit_data(df_long, regression_type, threshold, fit_df, et_df, categories, individuals)
+    fit_df, et_df = fit_data(df_long, regression_type, threshold, fit_df, et_df, categories, individuals, maxfev)
 
     print('Making plots...')
     make_lineplots(df_long, f'Absorbance_vs_Dilution_{regression_type}.jpg')
@@ -35,7 +36,7 @@ def main(args):
     make_boxplot_endpoint_titers(et_df, regression_type)
     
     
-def fit_data(df, regression_type, threshold, fit_df, et_df, categories, individuals):
+def fit_data(df, regression_type, threshold, fit_df, et_df, categories, individuals, maxfev):
 
     output = prep_output_file(regression_type)
     for cat in categories:
@@ -47,7 +48,7 @@ def fit_data(df, regression_type, threshold, fit_df, et_df, categories, individu
             xrange = list(np.linspace(xvals[0], xvals[-1], num=num_points))
             
             if regression_type == '4PL':
-                popt, pcov = curve_fit(fit_4PL, single_df['Dilution'], single_df['Absorbance'], maxfev=10000)
+                popt, pcov = curve_fit(fit_4PL, single_df['Dilution'], single_df['Absorbance'], maxfev=maxfev)
                 yfit_vals = [fit_4PL(x, *popt) for x in xrange]
                 a, b, c, d = popt
                 r_squared = calc_rsquared(single_df['Dilution'], single_df['Absorbance'], popt, regression_type)
@@ -57,7 +58,7 @@ def fit_data(df, regression_type, threshold, fit_df, et_df, categories, individu
                 else:
                     endpoint_titer = calc_endpoint_titer_4PL(a, b, c, d, threshold)
             else:
-                popt, pcov = curve_fit(fit_5PL, single_df['Dilution'], single_df['Absorbance'], maxfev=10000)
+                popt, pcov = curve_fit(fit_5PL, single_df['Dilution'], single_df['Absorbance'], maxfev=maxfev)
                 yfit_vals = [fit_5PL(x, *popt) for x in xrange]
                 a, b, c, d, g = popt
                 r_squared = calc_rsquared(single_df['Dilution'], single_df['Absorbance'], popt, regression_type)
@@ -286,6 +287,7 @@ def get_args(arguments):
     parser.add_argument('-f', '--file_type', type=str, default='csv', help="""The file type of the data_file provided. Options are "csv" or "tsv" Default=csv""")
     parser.add_argument('-r', '--regression_type', type=str, default='4PL', help="""The regression type used for curve fitting. Options are "4PL" or "5PL" (4-parameter logistic or 5-parameter logistic, respectively). Default=4PL""")
     parser.add_argument('-t', '--threshold', type=float, default=0.2, help="""The threshold to use for endpoint titer calculation. Default=0.2""")
+    parser.add_argument('-x', '--maxfev', type=int, default=10000, help="""Maximum number of function evaluations during scipy.optimize curve fitting. Default=10000""")
 
     args = parser.parse_args(arguments)
     
