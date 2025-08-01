@@ -153,7 +153,7 @@ def prep_output_file(regression_type):
     else:
         header = '\t'.join(['Group', 'Sample ID', 'Endpoint Titer', '1 / Endpoint_Titer', 'Goodness of Fit (R-squared)'] + list('abcdg'))
         
-    output = open('Endpoint_Titer_Results.tsv', 'w')
+    output = open(f'Endpoint_Titer_Results_{regression_type}.tsv', 'w')
     output.write(header + '\n')
     
     return output
