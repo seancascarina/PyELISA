@@ -11,6 +11,7 @@ def main():
     df_4pl['regression_type'] = '4PL'
     df_5pl['regression_type'] = '5PL'
     df = pd.concat([df_4pl, df_5pl])
+    df['xtick_label'] = df['Group'] + ', ' + df['Sample ID']
     
     
     
