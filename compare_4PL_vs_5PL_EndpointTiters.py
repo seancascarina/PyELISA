@@ -3,7 +3,17 @@ import pandas as pd
 
 def main():
     
-    get_endpoint_titers('Endpoint_Titer_Results_4PL.tsv')
+    df_4pl = get_endpoint_titers('Endpoint_Titer_Results_4PL.tsv')
+    df_5pl = get_endpoint_titers('Endpoint_Titer_Results_5PL.tsv')
+    
+    # PREP DATA FOR PLOTTING
+    df_5pl.drop('g', axis=1, inplace=True)
+    df_4pl['regression_type'] = '4PL'
+    df_5pl['regression_type'] = '5PL'
+    df = pd.concat([df_4pl, df_5pl])
+    
+    
+    
     
 def get_endpoint_titers(file):
     
