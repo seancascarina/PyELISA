@@ -15,11 +15,18 @@ def main():
     df = pd.concat([df_4pl, df_5pl], ignore_index=True)
     df['xtick_label'] = df['Group'] + ', ' + df['Sample ID']
     
+    plotting(df)
+    
     
 def plotting(df):
     
     sns.barplot(x='xtick_label', y='1 / Endpoint_Titer', data=df, hue='regression_type')
-    plt.show()
+    plt.xticks(rotation=90)
+    plt.xlabel('Group, Sample ID')
+    fig = plt.gcf()
+    fig.set_size_inches(7,5)
+    plt.savefig('4PL_vs_5PL_EndpointTiter_Comparison.tif', bbox_inches='tight', dpi=300)
+    plt.close()
     
     
 def get_endpoint_titers(file):
