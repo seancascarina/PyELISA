@@ -95,7 +95,7 @@ def fit_data(df, regression_type, threshold, fit_df, et_df, categories, individu
             # STORE ENDPOINT TITER DATA
             if endpoint_titer:
                 et_reciprocal = 1 / endpoint_titer
-                et_df['Endpoint titer'].append(1/et_reciprocal)
+                et_df['Endpoint titer'].append(et_reciprocal)
                 et_df['Groups'].append(cat)
             else:
                 et_reciprocal = None
