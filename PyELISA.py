@@ -37,7 +37,17 @@ def main(args):
     
     
 def fit_data(df, regression_type, threshold, fit_df, et_df, categories, individuals, maxfev):
-
+    """
+    Fit Absorbance vs. Dilution ELISA data with a 4-parameter logistic (4PL) or
+    5-parameter logistic (5PL) regression model (user's choice).
+    
+    Returns:
+        fit_df (dict) - Long-form dictionary with 1000 fit data points per 
+            sample ID representing 4PL or 5PL curvefit values.
+        et_df (dict) - Long-form dictionary with endpoint titer values
+            for each group (for boxplot).
+    """
+    
     output = prep_output_file(regression_type)
     for cat in categories:
         for individual in individuals:
@@ -88,8 +98,12 @@ def fit_data(df, regression_type, threshold, fit_df, et_df, categories, individu
     
     
 def calc_rsquared(x_vals, y_vals, popt, regression_type):
+    """
+    Calculate the R-squared for each curve fit to assess goodnes of fit.
     
-    # ===COULD BE FASTER IF VECTORIZED BUT SPEED GAIN IS LIKELY NEGLIGIBLE===
+    Returns:
+        r-squared (float)
+    """
 
     # SUM OF SQUARED RESIDUALS
     if regression_type == '4PL':
@@ -106,26 +120,69 @@ def calc_rsquared(x_vals, y_vals, popt, regression_type):
     
     
 def fit_5PL(x, a, b, c, d, g):
+    """
+    Objective function for fitting a 5PL regression model.
+    
+    Returns:
+        fx (float) - predicted absorbance value (y) for a given dilution (x).
+    """
+    
     fx = (a-d) / (1+((x/c)**b))**g + d
     return fx
     
     
 def calc_endpoint_titer_5PL(a, b, c, d, g, threshold):
+    """
+    Calculate endpoint titer for using the 5PL regression model.
+    
+    Returns:
+        endpoint_titer (float) - dilution at which the threshold crosses 
+            the sigmoidal 5PL regression line (fitted curve).
+    """
+    
     endpoint_titer = c * (( (a-d) / (threshold-d) )**(1/g) - 1)**(1/b)
     return endpoint_titer
     
 
 def fit_4PL(x, a, b, c, d):
+    """
+    Objective function for fitting a 4PL regression model.
+    
+    Returns:
+        fx (float) - predicted absorbance value (y) for a given dilution (x).
+    """
+    
     fx = (a-d) / (1+((x/c)**b)) + d
     return fx
     
     
 def calc_endpoint_titer_4PL(a, b, c, d, threshold):
+    """
+    Calculate endpoint titer for using the 4PL regression model.
+    
+    Returns:
+        endpoint_titer (float) - dilution at which the threshold crosses 
+            the sigmoidal 4PL regression line (fitted curve).
+    """
+    
     endpoint_titer = c * (( (a-d) / (threshold-d) ) - 1)**(1/b)
     return endpoint_titer
     
     
 def prep_containers(df):
+    """
+    Prepare data containers for use in downstream functions.
+    
+    Returns:
+        fit_df (dict) - Long-form dictionary that will contain 1000 fit data points per 
+            sample ID representing 4PL or 5PL curvefit values.
+        et_df (dict) - Long-form dictionary that will contain endpoint titer values
+            for each group (for boxplot).
+        categories (list) - List of all groups/categories in the user-provided data,
+            with the original order preserved.
+        individuals (list) - List of all individual sample IDs in the user-provided data,
+            with the original order preserved.
+    """
     
     fit_df = {'Groups':[],
             'Dilution':[],
@@ -148,6 +205,13 @@ def prep_containers(df):
     
     
 def prep_output_file(regression_type):
+    """
+    Prepare output file to write endpoint titer data. Opens the file in write mode and 
+    writes a header line specific to 4PL or 5PL regression.
+    
+    Returns:
+        output (file handle) - handle of the output file to write endpoint titer data.
+    """
     
     if regression_type == '4PL':
         header = '\t'.join(['Group', 'Sample ID', 'Endpoint Titer', '1 / Endpoint_Titer', 'Goodness of Fit (R-squared)'] + list('abcd'))
@@ -161,6 +225,12 @@ def prep_output_file(regression_type):
     
     
 def make_boxplot_endpoint_titers(df, regression_type):
+    """
+    Make boxplot with overlaid stripplot for the calculated endpoint titer values.
+    
+    Returns:
+        None
+    """
     
     sns.boxplot(x='Groups', y='Endpoint titer', data=df, hue='Groups', showfliers=False, palette=['0.7']*len(set(df['Groups'])))
     sns.stripplot(x='Groups', y='Endpoint titer', data=df, hue='Groups')
@@ -169,6 +239,12 @@ def make_boxplot_endpoint_titers(df, regression_type):
     
     
 def make_lineplots(df, plot_name):
+    """
+    Make figure with grid of simple line plots of Absorbance vs. Dilution for each unique sample ID.
+    
+    Returns:
+        None
+    """
     
     df_copy = df.copy()
     df_copy['Dilution'] = np.log2( df_copy['Dilution'] )
@@ -199,6 +275,12 @@ def make_lineplots(df, plot_name):
     
     
 def make_lineplots_fitdata(df, plot_name, threshold, lines_df=None):
+    """
+    Make figure with grid of curve-fit regression lines for each unique sample ID.
+    
+    Returns:
+        None
+    """
     
     df_copy = df.copy()
     df_copy['Dilution'] = np.log2( df_copy['Dilution'] )
@@ -244,7 +326,13 @@ def make_lineplots_fitdata(df, plot_name, threshold, lines_df=None):
     
     
 def get_data(data_file, file_type):
-
+    """
+    Read data from user-provided file and store as a dictionary.
+    
+    Returns:
+        df (dict) - pandas DataFrame with the same structure as user-provided data.
+    """
+    
     if file_type == 'csv':
         df = pd.read_csv(data_file)
     else:
@@ -256,6 +344,17 @@ def get_data(data_file, file_type):
     
     
 def validate_input(data_file, file_type, regression_type, threshold):
+    """
+    Run validation checks on command-line input from user.
+    Checks that:
+        1) the data_file could be successfully opened.
+        2) the file_type is "csv" or "tsv" (comma-separated values or tab-separated values, respectively).
+        3) the regression_type is "4PL" or "5PL" (4-parameter logistic or 5-parameter logistic, respectively).
+        4) the threshold for calculating endpoint titer is >= 0.0.
+        
+    Returns:
+        None
+    """
     
     error_message = ''
     # VALIDATE FILE
@@ -272,7 +371,7 @@ def validate_input(data_file, file_type, regression_type, threshold):
         error_message += '\nERROR: Unrecognized value for regression_type parameter. Valid regression types are "4PL" or "5PL" only.'
         
     if not 0.0 <= threshold:
-        error_message += '\nERROR: Threshold value for calculating endpoint titer should be > 0.'
+        error_message += '\nERROR: Threshold value for calculating endpoint titer should be >= 0.'
         
     if error_message:
         print(error_message)
@@ -281,6 +380,13 @@ def validate_input(data_file, file_type, regression_type, threshold):
 
 
 def get_args(arguments):
+    """
+    Gather and type-check command-line arguments.
+    
+    Returns:
+        args (argparse namespace) - command line arguments used as variables.
+    """
+    
     parser = argparse.ArgumentParser(description='Calculate endpoint titer (ET) from ELISA data', prog='PyELISA')
     
     parser.add_argument('data_file', help="""Your data file.""")
@@ -297,4 +403,5 @@ def get_args(arguments):
 if __name__ == '__main__':
     import sys, argparse
     args = get_args(sys.argv[1:])
+    print(type(args))
     main(args)
