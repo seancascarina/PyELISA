@@ -201,11 +201,13 @@ def prep_containers(df):
     et_df = {'Endpoint titer':[],
             'Groups':[]}
 
+    # STORE LIST OF UNIQUE GROUPS/CATEGORIES WITH ORDER PRESERVED
     categories = []
     for cat in df['Groups']:
         if cat not in categories:
             categories.append(cat)
 
+    # STORE LIST OF UNIQUE SAMPLE_IDs ("individual") WITH ORDER PRESERVED
     individuals = []
     for ind in df['Individual']:
         if ind not in individuals:
