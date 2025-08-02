@@ -298,11 +298,6 @@ def make_lineplots_fitdata(df, plot_name, threshold, lines_df=None):
     
     lines_df_copy = lines_df.copy()
     lines_df_copy['Dilution'] = np.log2( lines_df_copy['Dilution'] )
-    
-    df_copy['plot_type'] = 'scatter'
-    lines_df_copy['plot_type'] = 'line'
-    
-    combined_df = pd.concat([df_copy, lines_df_copy], ignore_index=True)
 
     # SET STYLE TO BE SIMILAR TO ORIGINAL ELISA-R PLOTS
     sns.set_style('darkgrid', rc={'xtick.bottom': True, 'ytick.left': True, 'xtick.color': 'black', 'ytick.color': 'black'})
