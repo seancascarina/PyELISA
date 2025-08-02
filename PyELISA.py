@@ -34,7 +34,7 @@ def main(args):
     fit_df, et_df = fit_data(df_long, regression_type, threshold, fit_df, et_df, categories, individuals, maxfev)
 
     print('Making plots...')
-    make_lineplots(df_long, f'Absorbance_vs_Dilution_{regression_type}.jpg')
+    make_lineplots(df_long, categories, f'Absorbance_vs_Dilution_{regression_type}.jpg')
     make_lineplots_fitdata(df_long, f'SigmoidFit_Absorbance_vs_Dilution_{regression_type}.jpg', threshold, pd.DataFrame(fit_df))
     make_boxplot_endpoint_titers(et_df, regression_type)
     
@@ -250,7 +250,7 @@ def make_boxplot_endpoint_titers(df, regression_type):
     plt.close()
     
     
-def make_lineplots(df, plot_name):
+def make_lineplots(df, row_cats, plot_name):
     """
     Make figure with grid of simple line plots of Absorbance vs. Dilution for each unique sample ID.
     
@@ -273,11 +273,6 @@ def make_lineplots(df, plot_name):
     # STYLIZE TITLES AND SUBPLOT SPACING
     grid.set_titles(col_template="{col_name}", row_template="{row_name}")
     grid.fig.subplots_adjust(hspace=0.2) # Adjust spacing
-    
-    row_cats = []
-    for cat in df_copy['Groups']:
-        if cat not in row_cats:
-            row_cats.append(cat)
 
     # MAKE CUSTOM LEGEND ELEMENTS
     legend_elements = [Line2D([0], [0], marker='o', linestyle='None', markeredgecolor='None', label=cat, markerfacecolor=colors[i], markersize=10) for i, cat in enumerate(row_cats)]
