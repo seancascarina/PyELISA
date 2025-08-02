@@ -54,26 +54,31 @@ def fit_data(df, regression_type, threshold, fit_df, et_df, categories, individu
     output = prep_output_file(regression_type)
     for cat in categories:
         for individual in individuals:
+            
+            # EXTRACT DATA FOR A SINGLE SAMPLE_ID ("individual")
             single_df = df[ (df['Groups'] == cat) & (df['Individual'] == individual) ]
 
+            # DEFINE X-VALUES TO USE FOR CURVE FITTING
             num_points = 1000
             xvals = list(single_df['Dilution'])
             xrange = list(np.linspace(xvals[0], xvals[-1], num=num_points))
             
+            # PERFORM CURVE-FITTING FOR 4PL
             if regression_type == '4PL':
                 popt, pcov = curve_fit(fit_4PL, single_df['Dilution'], single_df['Absorbance'], maxfev=maxfev)
                 yfit_vals = [fit_4PL(x, *popt) for x in xrange]
-                a, b, c, d = popt
+                a, b, c, d = popt   # EXTRACT OPTIMIZED REGRESSION PARAMETERS
                 r_squared = calc_rsquared(single_df['Dilution'], single_df['Absorbance'], popt, regression_type)
                 if a > threshold:
                     print(f'\nWARNING: the sample "{individual}" from group "{cat}" has a curve-fit value at zero concentration that is higher than your threshold (threshold={threshold}), curve-fit absorbance at zero={a}. An endpoint titer could not be determined for this sample. Consider increasing the threshold or assaying more dilute samples to get lower absorbance readings.\n')
                     endpoint_titer = None
                 else:
                     endpoint_titer = calc_endpoint_titer_4PL(a, b, c, d, threshold)
+            # OR PERFORM CURVE-FITTING FOR 5PL
             else:
                 popt, pcov = curve_fit(fit_5PL, single_df['Dilution'], single_df['Absorbance'], maxfev=maxfev)
                 yfit_vals = [fit_5PL(x, *popt) for x in xrange]
-                a, b, c, d, g = popt
+                a, b, c, d, g = popt   # EXTRACT OPTIMIZED REGRESSION PARAMETERS
                 r_squared = calc_rsquared(single_df['Dilution'], single_df['Absorbance'], popt, regression_type)
                 if a > threshold:
                     print(f'\nWARNING: the sample "{individual}" from group "{cat}" has a curve-fit value at zero concentration that is higher than your threshold (threshold={threshold}), curve-fit absorbance at zero={a}. An endpoint titer could not be determined for this sample. Consider increasing the threshold or assaying more dilute samples to get lower absorbance readings.\n')
@@ -81,11 +86,13 @@ def fit_data(df, regression_type, threshold, fit_df, et_df, categories, individu
                 else:
                     endpoint_titer = calc_endpoint_titer_5PL(a, b, c, d, g, threshold)
 
+            # STORE FIT DATA
             fit_df['Groups'] += [cat]*num_points
             fit_df['Individual'] += [individual]*num_points
             fit_df['Dilution'] += xrange
             fit_df['Absorbance'] += yfit_vals
             
+            # STORE ENDPOINT TITER DATA
             if endpoint_titer:
                 et_reciprocal = 1 / endpoint_titer
                 et_df['Endpoint titer'].append(1/et_reciprocal)
