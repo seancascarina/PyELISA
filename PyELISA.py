@@ -258,15 +258,19 @@ def make_lineplots(df, plot_name):
         None
     """
     
+    # MAKE COPY OF df AND CALCULATE LOG BASE 2 OF DILUTION
     df_copy = df.copy()
     df_copy['Dilution'] = np.log2( df_copy['Dilution'] )
 
+    # SET STYLE TO BE SIMILAR TO ORIGINAL ELISA-R PLOTS
     sns.set_style('darkgrid', rc={'xtick.bottom': True, 'ytick.left': True, 'xtick.color': 'black', 'ytick.color': 'black'})
+    
+    # MAKE FACETGRID WITH SCATTERPLOTS AND LINEPLOTS
     grid = sns.FacetGrid(df_copy, col='Individual', row='Groups', hue='Groups')
-
     grid.map(sns.scatterplot, 'Dilution', 'Absorbance')
     grid.map(sns.lineplot, 'Dilution', 'Absorbance')
 
+    # STYLIZE TITLES AND SUBPLOT SPACING
     grid.set_titles(col_template="{col_name}", row_template="{row_name}")
     grid.fig.subplots_adjust(hspace=0.2) # Adjust spacing
     
@@ -275,8 +279,8 @@ def make_lineplots(df, plot_name):
         if cat not in row_cats:
             row_cats.append(cat)
 
+    # MAKE CUSTOM LEGEND ELEMENTS
     legend_elements = [Line2D([0], [0], marker='o', linestyle='None', markeredgecolor='None', label=cat, markerfacecolor=colors[i], markersize=10) for i, cat in enumerate(row_cats)]
-
     fig = plt.gcf()
     fig.legend(handles=legend_elements, loc='center left', bbox_to_anchor=(1,0.5), handletextpad=0.0, title='Groups')
 
