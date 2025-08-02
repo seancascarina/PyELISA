@@ -10,6 +10,7 @@ colors = sns.color_palette()
 
 def main(args):
 
+    # EXTRACT COMMAND-LINE ARGUMENTS
     data_file = args.data_file
     file_type = args.file_type.lower()
     regression_type = args.regression_type.upper()
@@ -21,9 +22,11 @@ def main(args):
     print('Gathering data...')
     df = get_data(data_file, file_type)
     
+    # SEPARATE GROUP AND SAMPLE_ID COLUMNS FROM DATA COLUMNS
     category_cols = list(df.columns[:2])
     data_cols = list(df.columns[2:])
 
+    # CONVERT WIDE DICTIONARY TO LONG-FORM
     df_long = df.melt(id_vars=category_cols, value_vars=data_cols, var_name='Individual', value_name='Absorbance')
 
     print('Fitting curves...')
@@ -403,5 +406,4 @@ def get_args(arguments):
 if __name__ == '__main__':
     import sys, argparse
     args = get_args(sys.argv[1:])
-    print(type(args))
     main(args)
