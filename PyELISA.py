@@ -353,7 +353,9 @@ def get_data(data_file, file_type, reps):
     else:
         df = pd.read_csv(data_file, sep='\t')
 
-    df['Dilution'] = pd.eval(df['Dilution']).astype(float)
+    # pd.eval() FAILS FOR PANDAS, INCLUDING LATEST VERSION TO DATE (2.3.1)
+    # SWITCHED TO USING BUILT-IN PYTHON eval()
+    df['Dilution'] = [eval(x) for x in df['Dilution']]
     
     column_headers = ['Groups', 'Dilution']
     if reps:
