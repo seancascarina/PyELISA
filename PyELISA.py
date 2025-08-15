@@ -16,6 +16,7 @@ def main(args):
     regression_type = args.regression_type.upper()
     threshold = args.threshold
     maxfev = args.maxfev
+    reps = args.replicates
     
     validate_input(data_file, file_type, regression_type, threshold)
     
@@ -408,6 +409,7 @@ def get_args(arguments):
     parser.add_argument('-r', '--regression_type', type=str, default='4PL', help="""The regression type used for curve fitting. Options are "4PL" or "5PL" (4-parameter logistic or 5-parameter logistic, respectively). Default=4PL""")
     parser.add_argument('-t', '--threshold', type=float, default=0.2, help="""The threshold to use for endpoint titer calculation. Default=0.2""")
     parser.add_argument('-x', '--maxfev', type=int, default=10000, help="""Maximum number of function evaluations during scipy.optimize curve fitting. Default=10000""")
+    parser.add_argument('-p', '--replicates', action='store_true', help="""Toggle to indicate that sigmoidal curves should be based on mean values for measurement replicates. Helps account for measurement variability during data collection (e.g. well-to-well variation in the instrument.""")
 
     args = parser.parse_args(arguments)
     
