@@ -20,7 +20,7 @@ def main(args):
     validate_input(data_file, file_type, regression_type, threshold)
     
     print('Gathering data...')
-    df = get_data(data_file, file_type, reps)
+    df = get_data(data_file, file_type)
     
     # SEPARATE GROUP AND SAMPLE_ID COLUMNS FROM DATA COLUMNS
     category_cols = list(df.columns[:2])
@@ -339,7 +339,7 @@ def make_lineplots_fitdata(df, plot_name, threshold, reps, lines_df=None):
     plt.close()
     
     
-def get_data(data_file, file_type, reps):
+def get_data(data_file, file_type):
     """
     Read data from user-provided file and store as a dictionary.
     
@@ -351,25 +351,8 @@ def get_data(data_file, file_type, reps):
         df = pd.read_csv(data_file)
     else:
         df = pd.read_csv(data_file, sep='\t')
-    # print([repr(x) for x in df['Dilution']])
-    # print(pd.eval(df['Dilution']))
-    # print(df.info())
-    # print(df)
-    # print([type(x) for x in df['Dilution']])
-    # print(list(df['Dilution']))
-    # df['Dilution'] = pd.eval(df['Dilution']).astype(float)
-    
-    # pd.eval() FAILS FOR PANDAS VERSIONS INCLUDING LATEST VERSION TO DATE (2.3.1)
-    # SWITCHED TO USING BUILT-IN PYTHON eval()
-    df['Dilution'] = [eval(x) for x in df['Dilution']]
-    
-    column_headers = ['Groups', 'Dilution']
-    if reps:
-        column_headers += ['Replicate']
-    
-    if not all([True if column_header in df else False for column_header in column_headers]):
-        print('\nERROR: The following column names must exist in your data file: "Groups", "Dilution", and "Replicate" (with "Replicate" only required if -p or --replicates was used).')
-        print('\nExiting prematurely...')
+
+    df['Dilution'] = pd.eval(df['Dilution']).astype(float)
 
     return df
     
