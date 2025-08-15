@@ -21,7 +21,7 @@ def main(args):
     validate_input(data_file, file_type, regression_type, threshold)
     
     print('Gathering data...')
-    df = get_data(data_file, file_type)
+    df = get_data(data_file, file_type, reps)
     
     # SEPARATE GROUP AND SAMPLE_ID COLUMNS FROM DATA COLUMNS
     category_cols = list(df.columns[:2])
@@ -340,7 +340,7 @@ def make_lineplots_fitdata(df, plot_name, threshold, reps, lines_df=None):
     plt.close()
     
     
-def get_data(data_file, file_type):
+def get_data(data_file, file_type, reps):
     """
     Read data from user-provided file and store as a dictionary.
     
@@ -354,6 +354,15 @@ def get_data(data_file, file_type):
         df = pd.read_csv(data_file, sep='\t')
 
     df['Dilution'] = pd.eval(df['Dilution']).astype(float)
+    
+    column_headers = ['Groups', 'Dilution']
+    if reps:
+        column_headers += ['Replicate']
+    
+    if not all([True if column_header in df else False for column_header in column_headers]):
+        print('\nERROR: The following column names must exist in your data file: "Groups", "Dilution", and "Replicate" (with "Replicate" only required if -p or --replicates was used).')
+        print('\nExiting prematurely...')
+        exit()
 
     return df
     
