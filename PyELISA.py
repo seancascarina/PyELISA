@@ -17,7 +17,7 @@ def main(args):
     threshold = args.threshold
     maxfev = args.maxfev
     reps = args.replicates
-    
+
     validate_input(data_file, file_type, regression_type, threshold)
     
     print('Gathering data...')
@@ -36,7 +36,7 @@ def main(args):
 
     print('Making plots...')
     make_lineplots(df_long, categories, f'Absorbance_vs_Dilution_{regression_type}.jpg')
-    make_lineplots_fitdata(df_long, f'SigmoidFit_Absorbance_vs_Dilution_{regression_type}.jpg', threshold, pd.DataFrame(fit_df))
+    make_lineplots_fitdata(df_long, f'SigmoidFit_Absorbance_vs_Dilution_{regression_type}.jpg', threshold, reps, pd.DataFrame(fit_df))
     make_boxplot_endpoint_titers(et_df, regression_type)
     
     
@@ -285,7 +285,7 @@ def make_lineplots(df, row_cats, plot_name):
     plt.close()
     
     
-def make_lineplots_fitdata(df, plot_name, threshold, lines_df=None):
+def make_lineplots_fitdata(df, plot_name, threshold, reps, lines_df=None):
     """
     Make figure with grid of curve-fit regression lines for each unique sample ID.
     
@@ -305,7 +305,10 @@ def make_lineplots_fitdata(df, plot_name, threshold, lines_df=None):
     
     # MAKE FACETGRID WITH SCATTERPLOTS AND LINEPLOTS
     grid = sns.FacetGrid(df_copy, col='Individual', row='Groups', hue='Groups')
-    grid.map(sns.scatterplot, 'Dilution', 'Absorbance', data=df_copy)
+    if reps:
+        grid.map(sns.pointplot, 'Dilution', 'Absorbance', data=df_copy)
+    else:
+        grid.map(sns.scatterplot, 'Dilution', 'Absorbance', data=df_copy)
 
     # LOOP OVER GRID TO OVERLAY UNIQUE CURVE FIT SIGMOID FOR EACH SUBPLOT
     row_cats = []
@@ -349,8 +352,17 @@ def get_data(data_file, file_type, reps):
         df = pd.read_csv(data_file)
     else:
         df = pd.read_csv(data_file, sep='\t')
-
-    df['Dilution'] = pd.eval(df['Dilution']).astype(float)
+    # print([repr(x) for x in df['Dilution']])
+    # print(pd.eval(df['Dilution']))
+    # print(df.info())
+    # print(df)
+    # print([type(x) for x in df['Dilution']])
+    # print(list(df['Dilution']))
+    # df['Dilution'] = pd.eval(df['Dilution']).astype(float)
+    
+    # pd.eval() FAILS FOR PANDAS VERSIONS INCLUDING LATEST VERSION TO DATE (2.3.1)
+    # SWITCHED TO USING BUILT-IN PYTHON eval()
+    df['Dilution'] = [eval(x) for x in df['Dilution']]
     
     column_headers = ['Groups', 'Dilution']
     if reps:
