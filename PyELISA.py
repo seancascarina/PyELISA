@@ -38,9 +38,9 @@ def main(args):
     fit_df, et_df = fit_data(df_long, regression_type, threshold, fit_df, et_df, categories, individuals, maxfev)
 
     print('Making plots...')
+    make_boxplot_endpoint_titers(et_df, regression_type)
     make_lineplots(df_long, categories, f'Absorbance_vs_Dilution_{regression_type}.jpg')
     make_lineplots_fitdata(df_long, f'SigmoidFit_Absorbance_vs_Dilution_{regression_type}.jpg', threshold, reps, pd.DataFrame(fit_df))
-    make_boxplot_endpoint_titers(et_df, regression_type)
     
     
 def fit_data(df, regression_type, threshold, fit_df, et_df, categories, individuals, maxfev):
