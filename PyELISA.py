@@ -310,12 +310,12 @@ def make_lineplots_fitdata(df, plot_name, threshold, reps, lines_df=None):
     sns.set_style('darkgrid', rc={'xtick.bottom': True, 'ytick.left': True, 'xtick.color': 'black', 'ytick.color': 'black'})
     
     # MAKE FACETGRID WITH SCATTERPLOTS AND LINEPLOTS
-    grid = sns.FacetGrid(df_copy, col='Individual', row='Groups', hue='Groups')
     if reps:
         mean_std_df = calc_mean_std(df_copy)
         grid = sns.FacetGrid(mean_std_df, col='Individual', row='Groups', hue='Groups')
         grid.map(plt.errorbar, 'Dilution', 'Absorbance', 'abs_std', fmt='o')
     else:
+        grid = sns.FacetGrid(df_copy, col='Individual', row='Groups', hue='Groups')
         grid.map(sns.scatterplot, 'Dilution', 'Absorbance', data=df_copy)
 
     # LOOP OVER GRID TO OVERLAY UNIQUE CURVE FIT SIGMOID FOR EACH SUBPLOT
