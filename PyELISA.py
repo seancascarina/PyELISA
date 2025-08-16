@@ -312,7 +312,9 @@ def make_lineplots_fitdata(df, plot_name, threshold, reps, lines_df=None):
     # MAKE FACETGRID WITH SCATTERPLOTS AND LINEPLOTS
     grid = sns.FacetGrid(df_copy, col='Individual', row='Groups', hue='Groups')
     if reps:
-        grid.map(sns.pointplot, 'Dilution', 'Absorbance', data=df_copy)
+        mean_std_df = calc_mean_std(df_copy)
+        grid = sns.FacetGrid(mean_std_df, col='Individual', row='Groups', hue='Groups')
+        grid.map(plt.errorbar, 'Dilution', 'Absorbance', 'abs_std', fmt='o')
     else:
         grid.map(sns.scatterplot, 'Dilution', 'Absorbance', data=df_copy)
 
@@ -344,6 +346,22 @@ def make_lineplots_fitdata(df, plot_name, threshold, reps, lines_df=None):
     fig.set_size_inches(12, 8)
     plt.savefig(plot_name, bbox_inches='tight', dpi=600)
     plt.close()
+    
+
+def calc_mean_std(df):
+    """
+    Calculate the mean Absorbance and standard deviation of absorbance across replicates
+    within each Group+Individual combination.
+    
+    Returns:
+        df (dict) - pandas DataFrame with Absorbance column representing the 
+                    mean absorbance, and the abs_std representing the standard
+                    deviation of absorbance across replicates.
+    """
+    
+    mean_se_df = df.groupby(['Groups', 'Individual', 'Dilution'], sort=False).agg(Absorbance=('Absorbance', 'mean'), abs_std=('Absorbance', 'std')).reset_index()
+
+    return mean_se_df
     
     
 def get_data(data_file, file_type, reps):
