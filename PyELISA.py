@@ -247,6 +247,9 @@ def make_boxplot_endpoint_titers(df, regression_type):
     Returns:
         None
     """
+
+    # SET STYLE TO BE SIMILAR TO ORIGINAL ELISA-R PLOTS
+    sns.set_style('darkgrid', rc={'xtick.bottom': True, 'ytick.left': True, 'xtick.color': 'black', 'ytick.color': 'black'})
     
     sns.boxplot(x='Groups', y='Endpoint titer', data=df, hue='Groups', showfliers=False, palette=['0.7']*len(set(df['Groups'])))
     sns.stripplot(x='Groups', y='Endpoint titer', data=df, hue='Groups')
