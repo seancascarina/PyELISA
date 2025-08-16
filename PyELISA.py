@@ -26,6 +26,9 @@ def main(args):
     # SEPARATE GROUP AND SAMPLE_ID COLUMNS FROM DATA COLUMNS
     category_cols = list(df.columns[:2])
     data_cols = list(df.columns[2:])
+    if 'Replicate' in data_cols:
+        data_cols.remove('Replicate')
+        category_cols.append('Replicate')
 
     # CONVERT WIDE DICTIONARY TO LONG-FORM
     df_long = df.melt(id_vars=category_cols, value_vars=data_cols, var_name='Individual', value_name='Absorbance')
