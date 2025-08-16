@@ -353,17 +353,23 @@ def get_data(data_file, file_type, reps):
     else:
         df = pd.read_csv(data_file, sep='\t')
 
-    # pd.eval() FAILS FOR PANDAS, INCLUDING LATEST VERSION TO DATE (2.3.1)
-    # SWITCHED TO USING BUILT-IN PYTHON eval()
-    df['Dilution'] = [eval(x) for x in df['Dilution']]
+    # ROBUST DILUTION FORMAT PARSING AND HANDLING
+    df['Dilution'] = [str(x).strip().replace("'", '') for x in df['Dilution']]
+    if '/' in df['Dilution'][0]:    # IF DATA CONTAINS A '/', ASSUME IT IS A STRING THAT REPRESENTS A FRACTION
+        df['Dilution'] = [eval(x) for x in df['Dilution']]
+    elif '.' in df['Dilution'][0]:  # IF DATA CONTAINS A '.', ASSUME THAT IT IS A FLOAT AND LEAVE AS A FLOAT
+        df['Dilution'] = [float(x) for x in df['Dilution']]
+    else:   # IF NOT A FRACTION STRING OR A DECIMAL, ASSUME THAT THE NUMBER IS THE DILUTION DENOMINATOR
+        df['Dilution'] = [1 / float(x) for x in df['Dilution']]
     
+    # CHECK THAT APPROPRIATE COLUMN HEADERS ARE CONTAINED IN THE USER DATA FILE
     column_headers = ['Groups', 'Dilution']
     if reps:
         column_headers += ['Replicate']
     
     if not all([True if column_header in df else False for column_header in column_headers]):
         print('\nERROR: The following column names must exist in your data file: "Groups", "Dilution", and "Replicate" (with "Replicate" only required if -p or --replicates was used).')
-        print('\nExiting prematurely...')
+        print('\nExiting prematurely...\n')
         exit()
 
     return df
